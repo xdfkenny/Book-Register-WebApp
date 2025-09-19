@@ -148,6 +148,8 @@ export function CitationResult({ result }: CitationResultProps) {
                             id="quantity"
                             name="quantity"
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             className="w-20 text-center font-bold text-base"
                             value={quantity}
                             onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
