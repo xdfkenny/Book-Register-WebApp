@@ -6,7 +6,8 @@ import { ScrapeBookDataFromISBNOutput } from '@/ai/flows/scrape-book-data-from-i
 import { addCitationToSheet } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clipboard, Loader2, FilePlus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { CheckCircle, Clipboard, Loader2, FilePlus, Plus, Minus } from 'lucide-react';
 
 interface CitationResultProps {
   result: ScrapeBookDataFromISBNOutput | null;
@@ -23,14 +24,14 @@ const renderWithItalics = (text: string | undefined) => {
   });
 };
 
-function AddToSheetButton({ citation }: { citation: string }) {
+function AddToSheetButton() {
     const { pending } = useFormStatus();
     
     return (
         <Button
             type="submit"
             disabled={pending}
-            className="mt-2 w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700"
+            className="mt-4 w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700"
         >
             {pending ? (
                 <>
@@ -49,6 +50,7 @@ function AddToSheetButton({ citation }: { citation: string }) {
 
 export function CitationResult({ result }: CitationResultProps) {
   const [copied, setCopied] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const [sheetSubmitState, formAction] = useActionState(addCitationToSheet, { success: false, message: '' });
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -76,6 +78,10 @@ export function CitationResult({ result }: CitationResultProps) {
             setTimeout(() => setCopied(false), 2000);
         });
     }
+  };
+
+  const handleQuantityChange = (amount: number) => {
+    setQuantity(prev => Math.max(1, prev + amount));
   };
 
   return (
@@ -132,7 +138,27 @@ export function CitationResult({ result }: CitationResultProps) {
             <p className="text-sm mt-1">You can now add it to your personal Google Sheet.</p>
             <form action={formAction}>
                 <input type="hidden" name="citation" value={plainTextCitation} />
-                <AddToSheetButton citation={plainTextCitation} />
+                <div className="mt-4">
+                    <label htmlFor="quantity" className="block text-sm font-medium text-blue-900 mb-2">Specify quantity:</label>
+                    <div className="flex items-center justify-center gap-2">
+                        <Button type="button" size="icon" variant="outline" className="h-8 w-8 bg-white/50" onClick={() => handleQuantityChange(-1)}>
+                            <Minus className="h-4 w-4" />
+                        </Button>
+                        <Input
+                            id="quantity"
+                            name="quantity"
+                            type="number"
+                            className="w-20 text-center font-bold text-base"
+                            value={quantity}
+                            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                            min="1"
+                        />
+                         <Button type="button" size="icon" variant="outline" className="h-8 w-8 bg-white/50" onClick={() => handleQuantityChange(1)}>
+                            <Plus className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+                <AddToSheetButton />
             </form>
             {showConfirmation && (
                 <div className={`mt-2 text-sm font-medium ${sheetSubmitState.success ? 'text-green-700' : 'text-destructive'}`}>

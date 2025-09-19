@@ -54,6 +54,7 @@ export async function getBookCitation(
 
 const CitationSchema = z.object({
   citation: z.string(),
+  quantity: z.string().transform(Number).refine(n => n > 0, "Quantity must be greater than 0."),
 });
 
 export async function addCitationToSheet(
@@ -62,20 +63,23 @@ export async function addCitationToSheet(
 ): Promise<{ success: boolean, message: string }> {
   const validatedFields = CitationSchema.safeParse({
     citation: formData.get('citation'),
+    quantity: formData.get('quantity'),
   });
 
   if (!validatedFields.success) {
     return {
       success: false,
-      message: "Invalid citation format."
+      message: "Invalid citation or quantity format."
     };
   }
   
-  const { citation } = validatedFields.data;
+  const { citation, quantity } = validatedFields.data;
+  const citationWithQuantity = `${citation} + [${quantity} units]`;
+  
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf8ydUYHcnsEXFojikB5LFjUQnmLdtYc_CLdUxluw0Is7GGvw/formResponse";
   
   const submissionData = new FormData();
-  submissionData.append("entry.366340186", citation);
+  submissionData.append("entry.366340186", citationWithQuantity);
   submissionData.append("fvv", "1");
   submissionData.append("pageHistory", "0");
   submissionData.append("fbzx", "7857329722940199907");
