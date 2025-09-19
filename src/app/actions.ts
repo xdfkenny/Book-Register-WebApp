@@ -74,18 +74,18 @@ export async function addCitationToSheet(
   }
   
   const { citation, quantity } = validatedFields.data;
-  const citationWithQuantity = `${citation} + [${quantity} units]`;
   
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf8ydUYHcnsEXFojikB5LFjUQnmLdtYc_CLdUxluw0Is7GGvw/formResponse";
   
   const submissionData = new FormData();
-  submissionData.append("entry.366340186", citationWithQuantity);
+  submissionData.append("entry.366340186", citation);
+  submissionData.append("entry.2007834780", quantity.toString());
   submissionData.append("fvv", "1");
   submissionData.append("pageHistory", "0");
   submissionData.append("fbzx", "7857329722940199907");
   
   try {
-    const response = await fetch(formUrl, {
+    await fetch(formUrl, {
       method: "POST",
       mode: "no-cors",
       body: submissionData,
