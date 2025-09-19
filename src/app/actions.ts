@@ -51,3 +51,50 @@ export async function getBookCitation(
     };
   }
 }
+
+const CitationSchema = z.object({
+  citation: z.string(),
+});
+
+export async function addCitationToSheet(
+  prevState: { success: boolean, message: string },
+  formData: FormData,
+): Promise<{ success: boolean, message: string }> {
+  const validatedFields = CitationSchema.safeParse({
+    citation: formData.get('citation'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      success: false,
+      message: "Invalid citation format."
+    };
+  }
+  
+  const { citation } = validatedFields.data;
+  const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf8ydUYHcnsEXFojikB5LFjUQnmLdtYc_CLdUxluw0Is7GGvw/formResponse";
+  
+  // IMPORTANT: Replace 'entry.XXXXXXXXX' with your actual Google Form entry ID.
+  const formEntryId = "entry.XXXXXXXXX";
+
+  const submissionData = new FormData();
+  submissionData.append(formEntryId, citation);
+  
+  try {
+    await fetch(formUrl, {
+      method: "POST",
+      mode: "no-cors",
+      body: submissionData,
+    });
+    return {
+      success: true,
+      message: "Citation successfully added to your Google Sheet!"
+    };
+  } catch (error) {
+    console.error("Error submitting to Google Form:", error);
+    return {
+      success: false,
+      message: "Failed to add citation to Google Sheet."
+    };
+  }
+}

@@ -1,10 +1,12 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
 import { ScrapeBookDataFromISBNOutput } from '@/ai/flows/scrape-book-data-from-isbn';
+import { addCitationToSheet } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clipboard } from 'lucide-react';
-import React, { useState } from 'react';
+import { CheckCircle, Clipboard, Loader2, FilePlus } from 'lucide-react';
 
 interface CitationResultProps {
   result: ScrapeBookDataFromISBNOutput | null;
@@ -21,19 +23,55 @@ const renderWithItalics = (text: string | undefined) => {
   });
 };
 
+function AddToSheetButton({ citation }: { citation: string }) {
+    const { pending } = useFormStatus();
+    
+    return (
+        <Button
+            type="submit"
+            disabled={pending}
+            className="mt-2 w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700"
+        >
+            {pending ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                </>
+            ) : (
+                <>
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    Add to Google Sheet
+                </>
+            )}
+        </Button>
+    );
+}
+
 export function CitationResult({ result }: CitationResultProps) {
   const [copied, setCopied] = useState(false);
+  const [sheetSubmitState, formAction] = useFormState(addCitationToSheet, { success: false, message: '' });
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    if(sheetSubmitState.message){
+        setShowConfirmation(true);
+        const timer = setTimeout(() => {
+            setShowConfirmation(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }
+  }, [sheetSubmitState]);
+
 
   if (!result) {
     return null;
   }
 
+  const plainTextCitation = result.mla_citation?.replace(/\*/g, '') || '';
+
   const handleCopy = () => {
-    if (result.mla_citation) {
-        // Create a temporary textarea element to get the plain text version of the citation.
-        const tempTextArea = document.createElement('textarea');
-        tempTextArea.value = result.mla_citation.replace(/\*/g, '');
-        navigator.clipboard.writeText(tempTextArea.value).then(() => {
+    if (plainTextCitation) {
+        navigator.clipboard.writeText(plainTextCitation).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         });
@@ -90,8 +128,17 @@ export function CitationResult({ result }: CitationResultProps) {
             </CardContent>
         </Card>
         <div className="mt-4 p-4 text-center bg-blue-100/50 text-blue-800 rounded-lg text-sm font-body border border-blue-200">
-            <p><span className="font-semibold">Confirmation:</span> Your citation is ready. You can now add it to your records.</p>
-            <p className="text-xs mt-1">Future update: direct integration with Google Sheets.</p>
+            <p className="font-semibold">Confirmation: Your citation is ready.</p>
+            <p className="text-sm mt-1">You can now add it to your personal Google Sheet.</p>
+            <form action={formAction}>
+                <input type="hidden" name="citation" value={plainTextCitation} />
+                <AddToSheetButton citation={plainTextCitation} />
+            </form>
+            {showConfirmation && (
+                <div className={`mt-2 text-sm font-medium ${sheetSubmitState.success ? 'text-green-700' : 'text-destructive'}`}>
+                    {sheetSubmitState.message}
+                </div>
+            )}
         </div>
     </div>
   );
