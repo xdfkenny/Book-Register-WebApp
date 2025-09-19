@@ -147,13 +147,12 @@ export function CitationResult({ result }: CitationResultProps) {
                         <Input
                             id="quantity"
                             name="quantity"
-                            type="number"
+                            type="text"
                             inputMode="numeric"
                             pattern="[0-9]*"
                             className="w-20 text-center font-bold text-base"
                             value={quantity}
                             onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                            min="1"
                         />
                          <Button type="button" size="icon" variant="outline" className="h-8 w-8 bg-white/50" onClick={() => handleQuantityChange(1)}>
                             <Plus className="h-4 w-4" />
