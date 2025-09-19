@@ -74,14 +74,14 @@ export async function addCitationToSheet(
   const { citation } = validatedFields.data;
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf8ydUYHcnsEXFojikB5LFjUQnmLdtYc_CLdUxluw0Is7GGvw/formResponse";
   
-  // IMPORTANT: Replace 'entry.XXXXXXXXX' with your actual Google Form entry ID.
-  const formEntryId = "entry.XXXXXXXXX";
-
   const submissionData = new FormData();
-  submissionData.append(formEntryId, citation);
+  submissionData.append("entry.366340186", citation);
+  submissionData.append("fvv", "1");
+  submissionData.append("pageHistory", "0");
+  submissionData.append("fbzx", "7857329722940199907");
   
   try {
-    await fetch(formUrl, {
+    const response = await fetch(formUrl, {
       method: "POST",
       mode: "no-cors",
       body: submissionData,
