@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { Book, Loader2 } from "lucide-react";
 import { getBookCitation } from "@/app/actions";
 import { CitationForm } from "@/components/citation-form";
@@ -12,7 +12,7 @@ const initialState = {
 };
 
 export default function Home() {
-  const [state, formAction] = useFormState(getBookCitation, initialState);
+  const [state, formAction] = useActionState(getBookCitation, initialState);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12 lg:p-24 bg-background">

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import React, { useState, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { ScrapeBookDataFromISBNOutput } from '@/ai/flows/scrape-book-data-from-isbn';
 import { addCitationToSheet } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,7 +49,7 @@ function AddToSheetButton({ citation }: { citation: string }) {
 
 export function CitationResult({ result }: CitationResultProps) {
   const [copied, setCopied] = useState(false);
-  const [sheetSubmitState, formAction] = useFormState(addCitationToSheet, { success: false, message: '' });
+  const [sheetSubmitState, formAction] = useActionState(addCitationToSheet, { success: false, message: '' });
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
