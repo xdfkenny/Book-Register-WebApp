@@ -11,7 +11,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['"Lexend Deca"', 'sans-serif'],
-        headline: ['Belleza', 'sans-serif'],
+        headline: ['"Lexend Deca"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
