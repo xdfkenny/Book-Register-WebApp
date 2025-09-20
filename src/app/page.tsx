@@ -25,7 +25,7 @@ export default function Home() {
             <Book className="h-16 w-16 text-primary" />
         </div>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-headline font-bold tracking-tight text-primary">
-          Cite Grabber
+          Book Register
         </h1>
         <p className="max-w-lg text-lg text-foreground/80 font-body">
           Enter an ISBN to instantly get your book data and a formatted MLA citation to be send to the Google Sheets.

@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Cite Grabber',
+  title: 'Book Register',
   description: 'Instantly generate MLA citations from an ISBN',
 };
 
