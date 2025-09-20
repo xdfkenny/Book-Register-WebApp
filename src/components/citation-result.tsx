@@ -146,8 +146,8 @@ export function CitationResult({ result }: CitationResultProps) {
             </CardContent>
         </Card>
         <div className="mt-4 p-4 text-center bg-blue-100/50 text-blue-800 rounded-lg text-sm font-body border border-blue-200">
-            <p className="font-semibold">Confirmation: Your citation is ready.</p>
-            <p className="text-sm mt-1">You can now add it to your personal Google Sheet.</p>
+            <p className="font-semibold">Confirmation: Your request is ready to be send.</p>
+            <p className="text-sm mt-1">You can now add it now to the Google Sheets.</p>
             <form action={formAction}>
                 <input type="hidden" name="citation" value={plainTextCitation} />
                 <div className="mt-4">
