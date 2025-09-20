@@ -25,6 +25,7 @@ const ScrapeBookDataFromISBNOutputSchema = z.object({
   edition: z.string().optional().describe('The edition of the book.'),
   publisher: z.string().optional().describe('The publisher of the book.'),
   year: z.string().optional().describe('The publication year of the book.'),
+  imageUrl: z.string().optional().describe('The URL of the book cover image.'),
 });
 export type ScrapeBookDataFromISBNOutput = z.infer<typeof ScrapeBookDataFromISBNOutputSchema>;
 
@@ -58,6 +59,7 @@ const scrapeBookDataFromISBNFlow = ai.defineFlow(
       const edition = $('p:contains("Edition:")').text().replace("Edition:", "").trim();
       const publisher = $('p:contains("Publisher:")').text().replace("Publisher:", "").trim();
       const year = $('p:contains("Published:")').text().replace("Published:", "").trim();
+      const imageUrl = $('div.image img').attr('src');
 
       // MLA Citation Construction
       let mlaCitation = `${author}. *${title.replace(/\(.*?\)/, '').trim()}*`;
@@ -83,6 +85,7 @@ const scrapeBookDataFromISBNFlow = ai.defineFlow(
         edition,
         publisher,
         year,
+        imageUrl,
       };
     } catch (error: any) {
       console.error('Error scraping book data:', error);

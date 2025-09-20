@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useActionState } from 'react';
+import Image from 'next/image';
 import { useFormStatus } from 'react-dom';
 import { ScrapeBookDataFromISBNOutput } from '@/ai/flows/scrape-book-data-from-isbn';
 import { addCitationToSheet } from '@/app/actions';
@@ -101,6 +102,17 @@ export function CitationResult({ result }: CitationResultProps) {
             </CardHeader>
             <CardContent>
                 <div className="space-y-6">
+                    {result.imageUrl && (
+                        <div className="flex justify-center">
+                            <Image
+                                src={result.imageUrl}
+                                alt={`Book cover for ${result.title}`}
+                                width={150}
+                                height={225}
+                                className="rounded-lg shadow-md"
+                            />
+                        </div>
+                    )}
                     <div>
                         <h3 className="font-headline text-lg font-semibold text-primary mb-2">MLA Citation</h3>
                         <div className="relative group rounded-lg border bg-muted p-4">
