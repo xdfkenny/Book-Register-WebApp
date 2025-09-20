@@ -46,7 +46,7 @@ export default function Home() {
       </div>
 
       <footer className="mt-16 text-center text-sm text-muted-foreground font-body">
-        <p>Powered by GenAI and ISBN Search. Designed for students and researchers.</p>
+        <p>Powered by xdfkenny and ISBN Search. Designed by students.</p>
       </footer>
     </main>
   );
