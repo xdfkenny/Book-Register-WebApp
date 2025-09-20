@@ -49,6 +49,8 @@ export function CitationForm({ formAction }: CitationFormProps) {
               id="isbn"
               name="isbn"
               type="text"
+              inputMode="numeric"
+              pattern="[0-9Xx-]*"
               placeholder="e.g., 978-0136019701"
               required
               className="flex-grow font-body text-base"
