@@ -1,5 +1,7 @@
 # 📚 Book Register
 
+![Book Register Preview](https://github.com/xdfkenny/Book-Register-WebApp/blob/main/IMG_0684.jpeg)
+
 **Book Register** is a small project built in just **1 hour of vibe coding during art class** while I was bored.  
 The project’s foundation was created with **ChatGPT**, and then expanded with **GenAI/Gemini** to handle most of the **frontend code**.  
 
