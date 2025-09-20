@@ -28,7 +28,7 @@ export default function Home() {
           Cite Grabber
         </h1>
         <p className="max-w-lg text-lg text-foreground/80 font-body">
-          Enter an ISBN to instantly get your book data and a formatted MLA citation.
+          Enter an ISBN to instantly get your book data and a formatted MLA citation to be send to the Google Sheets.
         </p>
       </div>
 
