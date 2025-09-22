@@ -10,7 +10,6 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import axios from 'axios';
-import * as cheerio from 'cheerio';
 
 const ScrapeBookDataFromISBNInputSchema = z.object({
   isbn: z.string().describe('The ISBN of the book to scrape data for.'),
@@ -41,39 +40,37 @@ const scrapeBookDataFromISBNFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const url = `https://isbnsearch.org/isbn/${input.isbn}`;
+      const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}${apiKey ? '&key=' + apiKey : ''}`;
+      
       const { data } = await axios.get(url);
-      const $ = cheerio.load(data);
 
-      const title = $('h1').text().trim();
-      
-      // If title is not found, the book likely doesn't exist for that ISBN.
-      if (!title) {
-        return {
-          title: '', // Return empty to indicate not found
-        };
+      if (data.totalItems === 0 || !data.items || data.items.length === 0) {
+        return { title: '' }; // Return empty to indicate not found
       }
+
+      const book = data.items[0];
+      const volumeInfo = book.volumeInfo;
+
+      const title = volumeInfo.title;
+      const authors = volumeInfo.authors || [];
+      const author = authors.join(', ');
+      const publisher = volumeInfo.publisher;
+      const year = volumeInfo.publishedDate ? new Date(volumeInfo.publishedDate).getFullYear().toString() : '';
+
+      const isbn13Identifier = volumeInfo.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13');
+      const isbn13 = isbn13Identifier ? isbn13Identifier.identifier : input.isbn;
+
+      // Google Books API doesn't reliably provide an "edition" field in a structured way.
+      // It's often part of the title or subtitle. For now, we'll leave it blank.
+      const edition = ''; 
       
-      const isbn13 = $('p:contains("ISBN-13:")').text().replace('ISBN-13:', '').trim();
-      const author = $('p:contains("Author:")').text().replace("Author:", "").trim();
-      const edition = $('p:contains("Edition:")').text().replace("Edition:", "").trim();
-      const publisher = $('p:contains("Publisher:")').text().replace("Publisher:", "").trim();
-      const year = $('p:contains("Published:")').text().replace("Published:", "").trim();
-      const imageUrl = $('div.image img').attr('src');
+      const imageUrl = volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail;
 
       // MLA Citation Construction
       let mlaCitation = `${author}. *${title.replace(/\(.*?\)/, '').trim()}*`;
       if (edition && edition !== '1') {
-        mlaCitation += `. ${edition}`;
-        // Add ordinal suffix if edition is a number
-        if (!isNaN(parseInt(edition))) {
-            const lastDigit = edition.slice(-1);
-            if (lastDigit === '1' && edition !== '11') mlaCitation += 'st';
-            else if (lastDigit === '2' && edition !== '12') mlaCitation += 'nd';
-            else if (lastDigit === '3' && edition !== '13') mlaCitation += 'rd';
-            else mlaCitation += 'th';
-        }
-        mlaCitation += ' ed.';
+        mlaCitation += `. ${edition} ed.`;
       }
       mlaCitation += `, ${publisher}, ${year}.`;
 
@@ -88,8 +85,8 @@ const scrapeBookDataFromISBNFlow = ai.defineFlow(
         imageUrl,
       };
     } catch (error: any) {
-      console.error('Error scraping book data:', error);
-      throw new Error(`Failed to scrape book data: ${error.message}`);
+      console.error('Error fetching book data from Google Books API:', error);
+      throw new Error(`Failed to fetch book data: ${error.message}`);
     }
   }
 );
