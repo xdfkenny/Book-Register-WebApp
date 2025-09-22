@@ -40,32 +40,28 @@ const scrapeBookDataFromISBNFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
-      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${input.isbn}${apiKey ? '&key=' + apiKey : ''}`;
+      const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${input.isbn}&jscmd=data&format=json`;
       
       const { data } = await axios.get(url);
 
-      if (data.totalItems === 0 || !data.items || data.items.length === 0) {
+      const bookData = data[`ISBN:${input.isbn}`];
+
+      if (!bookData) {
         return { title: '' }; // Return empty to indicate not found
       }
 
-      const book = data.items[0];
-      const volumeInfo = book.volumeInfo;
-
-      const title = volumeInfo.title;
-      const authors = volumeInfo.authors || [];
+      const title = bookData.title;
+      const authors = bookData.authors?.map((a: { name: string }) => a.name) || [];
       const author = authors.join(', ');
-      const publisher = volumeInfo.publisher;
-      const year = volumeInfo.publishedDate ? new Date(volumeInfo.publishedDate).getFullYear().toString() : '';
+      const publisher = bookData.publishers?.map((p: { name: string }) => p.name).join(', ') || '';
+      const year = bookData.publish_date || '';
 
-      const isbn13Identifier = volumeInfo.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13');
-      const isbn13 = isbn13Identifier ? isbn13Identifier.identifier : input.isbn;
-
-      // Google Books API doesn't reliably provide an "edition" field in a structured way.
-      // It's often part of the title or subtitle. For now, we'll leave it blank.
-      const edition = ''; 
+      const isbn13 = bookData.identifiers?.isbn_13?.[0] || input.isbn;
       
-      const imageUrl = volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail;
+      // OpenLibrary API doesn't reliably provide an "edition" field in the main data response.
+      const edition = ''; 
+
+      const imageUrl = bookData.cover?.large || bookData.cover?.medium || bookData.cover?.small;
 
       // MLA Citation Construction
       let mlaCitation = `${author}. *${title.replace(/\(.*?\)/, '').trim()}*`;
@@ -85,7 +81,7 @@ const scrapeBookDataFromISBNFlow = ai.defineFlow(
         imageUrl,
       };
     } catch (error: any) {
-      console.error('Error fetching book data from Google Books API:', error);
+      console.error('Error fetching book data from OpenLibrary API:', error);
       throw new Error(`Failed to fetch book data: ${error.message}`);
     }
   }
