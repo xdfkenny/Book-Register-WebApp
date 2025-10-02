@@ -43,11 +43,12 @@ export async function getBookCitation(
       data: result,
       error: null,
     };
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
+    const errorMessage = e.message || 'An unexpected error occurred.';
     return {
       data: null,
-      error: 'Failed to fetch citation data. The service might be temporarily unavailable or the ISBN is incorrect.',
+      error: `Failed to fetch citation data. The service might be temporarily unavailable. Details: ${errorMessage}`,
     };
   }
 }
